@@ -1,0 +1,2 @@
+# tiendaremeras
+# tiendaremeras_supabase
