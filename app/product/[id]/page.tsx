@@ -1,16 +1,22 @@
-"use client";
+import { notFound } from "next/navigation"
+import { supabase } from "@/lib/supabase"
+import { ProductDetail } from "@/components/product-detail"
 
-import { useParams, notFound } from "next/navigation";
-import { products } from "@/data/products";
-import { ProductDetail } from "@/components/product-detail";
+interface PageProps {
+  params: { id: string }
+}
 
-export default function ProductPage() {
-  const params = useParams<{ id: string }>();
-  const product = products.find((p) => p.id === Number(params.id));
+export default async function ProductPage({ params }: PageProps) {
+  const { data: product, error } = await supabase
+    .from("productos")
+    .select("*")
+    .eq("id", Number(params.id))
+    .eq("activo", true)
+    .single()
 
-  if (!product) {
-    notFound();
+  if (error || !product) {
+    notFound()
   }
 
-  return <ProductDetail product={product} />;
+  return <ProductDetail product={product} />
 }
