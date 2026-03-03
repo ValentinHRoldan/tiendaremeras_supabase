@@ -24,17 +24,21 @@ export interface ProductVariant {
 export interface Product {
   id: number;
   name: string;
-  price: number;
-  image: string;
+  price: number; // precio base
   description: string;
   details: string;
   features: string[];
   specs: Record<string, string>;
+  reviews: Review[];
+
+  variants: ProductVariant[];
+
+  // Estos pueden seguir existiendo si querés comodidad en UI
   sizes: string[];
   colors: ProductColor[];
-  reviews: Review[];
-  gallery: string[];
 }
+
+
 
 // export const products: Product[] = [
 //   {

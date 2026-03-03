@@ -30,7 +30,40 @@ export function ProductDetail({ product }: { product: Product }) {
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   }
-  
+  const selectedVariant = product.variants.find(
+  v =>
+    v.color === selectedColor &&
+    v.size === selectedSize &&
+    v.stock > 0 &&
+    v.activo
+  );
+  console.log(selectedVariant)
+
+  function colorDisponible(colorName: string) {
+    // Si no hay talle seleccionado, no bloqueamos nada
+    if (!selectedSize) return true;
+
+    return product.variants.some(
+      (v) =>
+        v.color === colorName &&
+        v.size === selectedSize &&
+        v.stock > 0 &&
+        v.activo
+    );
+  }
+
+  function talleDisponible(size: string) {
+  // Si no hay color seleccionado, no bloqueamos nada
+    if (!selectedColor) return true;
+
+    return product.variants.some(
+      (v) =>
+        v.size === size &&
+        v.color === selectedColor &&
+        v.stock > 0 &&
+        v.activo
+    );
+  }
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
       {/* Top section: image + info */}
@@ -38,7 +71,7 @@ export function ProductDetail({ product }: { product: Product }) {
         {/* Image */}
         <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-secondary lg:w-1/2">
           <Image
-            src={product.image}
+            src={product.variants[0].images[0]}
             alt={product.name}
             fill
             className="object-cover"
@@ -76,28 +109,38 @@ export function ProductDetail({ product }: { product: Product }) {
               Color{selectedColor ? `: ${selectedColor}` : ""}
             </h3>
             <div className="flex flex-wrap gap-3" role="radiogroup" aria-label="Seleccionar color">
-              {product.colors.map((color) => (
+            {product.colors.map((color) => {
+              const disabled = !colorDisponible(color.name);
+
+              return (
                 <button
                   key={color.name}
+                  disabled={disabled}
                   onClick={() => {
-                    setSelectedColor(color.name);
-                    setShowError(false);
+                    if (!disabled) {
+                      setSelectedColor(color.name);
+                      setShowError(false);
+                    }
                   }}
                   aria-label={color.name}
                   aria-checked={selectedColor === color.name}
                   role="radio"
-                  className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all ${
-                    selectedColor === color.name
-                      ? "border-foreground scale-110"
-                      : "border-border hover:border-muted-foreground"
-                  }`}
+                  className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all
+                    ${
+                      disabled
+                        ? "opacity-40 cursor-not-allowed"
+                        : selectedColor === color.name
+                        ? "border-foreground scale-110"
+                        : "border-border hover:border-muted-foreground"
+                    }`}
                 >
                   <span
                     className="h-7 w-7 rounded-full"
                     style={{ backgroundColor: color.hex }}
                   />
                 </button>
-              ))}
+              );
+            })}
             </div>
           </div>
 
@@ -107,25 +150,35 @@ export function ProductDetail({ product }: { product: Product }) {
               Talle{selectedSize ? `: ${selectedSize}` : ""}
             </h3>
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Seleccionar talle">
-              {product.sizes.map((size) => (
+            {product.sizes.map((size) => {
+              const disabled = !talleDisponible(size);
+
+              return (
                 <button
                   key={size}
+                  disabled={disabled}
                   onClick={() => {
-                    setSelectedSize(size);
-                    setShowError(false);
+                    if (!disabled) {
+                      setSelectedSize(size);
+                      setShowError(false);
+                    }
                   }}
                   aria-label={`Talle ${size}`}
                   aria-checked={selectedSize === size}
                   role="radio"
-                  className={`flex h-10 min-w-[2.75rem] items-center justify-center rounded-md border px-3 text-sm font-medium transition-all ${
-                    selectedSize === size
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-border text-foreground hover:border-muted-foreground"
-                  }`}
+                  className={`flex h-10 min-w-[2.75rem] items-center justify-center rounded-md border px-3 text-sm font-medium transition-all
+                    ${
+                      disabled
+                        ? "opacity-40 cursor-not-allowed"
+                        : selectedSize === size
+                        ? "border-foreground bg-foreground text-background"
+                        : "border-border text-foreground hover:border-muted-foreground"
+                    }`}
                 >
                   {size}
                 </button>
-              ))}
+              );
+            })}
             </div>
           </div>
 
@@ -197,7 +250,7 @@ export function ProductDetail({ product }: { product: Product }) {
         </div>
       </section> */}
       {/* GALERIA DE IMAGENES */}
-      <section className="mt-16">
+      {/* <section className="mt-16">
         <h2 className="mb-6 text-lg font-bold tracking-tight text-foreground">
           Más imágenes
         </h2>
@@ -222,7 +275,7 @@ export function ProductDetail({ product }: { product: Product }) {
             No hay imágenes adicionales.
           </p>
         )}
-      </section>
+      </section> */}
 
       {/* Reviews */}
       {/* <section className="mt-16 pb-10">
