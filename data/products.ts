@@ -11,6 +11,16 @@ export interface ProductColor {
   hex: string;
 }
 
+export interface ProductVariant {
+  id: number;
+  color: string;
+  size: string;
+  stock: number;
+  price: number;
+  activo: boolean;
+  images: string[];
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -23,6 +33,7 @@ export interface Product {
   sizes: string[];
   colors: ProductColor[];
   reviews: Review[];
+  gallery: string[];
 }
 
 // export const products: Product[] = [

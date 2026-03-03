@@ -30,7 +30,7 @@ export function ProductDetail({ product }: { product: Product }) {
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   }
-
+  
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
       {/* Top section: image + info */}
@@ -54,10 +54,10 @@ export function ProductDetail({ product }: { product: Product }) {
               {product.name}
             </h1>
             <div className="flex items-center gap-3">
-              <StarRating rating={Math.round(avgRating)} />
+              {/* <StarRating rating={Math.round(avgRating)} /> */}
               <span className="text-sm text-muted-foreground">
-                {avgRating.toFixed(1)} ({product.reviews.length}{" "}
-                {product.reviews.length === 1 ? "opinion" : "opiniones"})
+                {/* {avgRating.toFixed(1)} ({product.reviews.length}{" "}
+                {product.reviews.length === 1 ? "opinion" : "opiniones"}) */}
               </span>
             </div>
           </div>
@@ -174,7 +174,7 @@ export function ProductDetail({ product }: { product: Product }) {
       </div>
 
       {/* Specs */}
-      <section className="mt-16">
+      {/* <section className="mt-16">
         <h2 className="mb-6 text-lg font-bold tracking-tight text-foreground">
           Especificaciones
         </h2>
@@ -195,10 +195,37 @@ export function ProductDetail({ product }: { product: Product }) {
             </tbody>
           </table>
         </div>
+      </section> */}
+      {/* GALERIA DE IMAGENES */}
+      <section className="mt-16">
+        <h2 className="mb-6 text-lg font-bold tracking-tight text-foreground">
+          Más imágenes
+        </h2>
+
+        {product.gallery.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {product.gallery.map((img, i) => (
+              <div
+                key={i}
+                className="overflow-hidden rounded-lg border border-border bg-card"
+              >
+                <img
+                  src={img}
+                  alt={`Imagen ${i + 1}`}
+                  className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            No hay imágenes adicionales.
+          </p>
+        )}
       </section>
 
       {/* Reviews */}
-      <section className="mt-16 pb-10">
+      {/* <section className="mt-16 pb-10">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-lg font-bold tracking-tight text-foreground">
             Opiniones de Clientes
@@ -237,7 +264,7 @@ export function ProductDetail({ product }: { product: Product }) {
             </article>
           ))}
         </div>
-      </section>
+      </section> */}
     </main>
   );
 }
