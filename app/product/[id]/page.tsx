@@ -28,8 +28,10 @@ import { transformProduct } from "@/lib/transformers/product"
 
 export default async function ProductPage({
   params,
+  searchParams,
 }: {
-  params: Promise<{ id: string }>
+  params: { id: string }
+  searchParams: { color?: string }
 }) {
   const { id } = await params
 
@@ -58,6 +60,14 @@ export default async function ProductPage({
   if (error || !product) {
     notFound()
   }
-  console.log(product)
-  return <ProductDetail product={transformProduct(product)} />
+
+  // return <ProductDetail product={transformProduct(product)} />
+  return (
+  <ProductDetail
+    product={transformProduct(product)}
+    initialColor={searchParams?.color}
+  />
+)
 }
+
+

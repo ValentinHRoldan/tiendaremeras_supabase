@@ -10,7 +10,7 @@ export function ProductCard({ product }: { product: Product }) {
     >
       <div className="relative aspect-square overflow-hidden bg-secondary">
         <Image
-          src={product.image}
+          src={product.variants[0].images[0]}
           alt={product.name}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"

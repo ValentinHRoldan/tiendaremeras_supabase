@@ -7,11 +7,22 @@ import { useCart } from "@/components/cart-provider";
 import { StarRating } from "@/components/star-rating";
 import { useState } from "react";
 
-export function ProductDetail({ product }: { product: Product }) {
+
+export function ProductDetail({
+  product,
+  initialColor,
+}: {
+  product: Product
+  initialColor?: string
+}) {
   const { addToCart, openCart } = useCart();
   const [added, setAdded] = useState(false);
   const [selectedSize, setSelectedSize] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedColor, setSelectedColor] = useState(
+  product.colors.some(c => c.name === initialColor)
+    ? initialColor!
+    : product.colors[0]?.name ?? ""
+  );
   const [showError, setShowError] = useState(false);
 
   const avgRating =
@@ -37,6 +48,14 @@ export function ProductDetail({ product }: { product: Product }) {
     v.stock > 0 &&
     v.activo
   );
+
+  const selectedColorVariant = product.variants.find(
+  v =>
+    v.color === selectedColor &&
+    v.stock > 0 &&
+    v.activo
+);
+
   console.log(selectedVariant)
 
   function colorDisponible(colorName: string) {
@@ -70,14 +89,17 @@ export function ProductDetail({ product }: { product: Product }) {
       <div className="flex flex-col gap-10 lg:flex-row">
         {/* Image */}
         <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-secondary lg:w-1/2">
-          <Image
-            src={product.variants[0].images[0]}
-            alt={product.name}
-            fill
-            className="object-cover"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            priority
-          />
+        <Image
+          src={
+            selectedColorVariant?.images[0] ??
+            product.variants[0].images[0]
+          }
+          alt={product.name}
+          fill
+          className="object-cover"
+          sizes="(max-width: 1024px) 100vw, 50vw"
+          priority
+        />
         </div>
 
         {/* Info */}
