@@ -24,6 +24,7 @@ export function transformProduct(producto: any): Product {
       v.producto_variante_imagenes
         ?.sort((a: any, b: any) => a.posicion - b.posicion)
         ?.map((img: any) => img.imagen_url) ?? [],
+    es_principal: v.es_principal
   }));
 
   // 2. Derivamos sizes únicos desde variants

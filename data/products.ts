@@ -19,7 +19,7 @@ export interface ProductVariant {
   price: number;
   activo: boolean;
   images: string[];
-  es_principal?: boolean; // Nuevo campo para identificar la variante principal
+  es_principal: boolean; // Nuevo campo para identificar la variante principal
 }
 
 export interface Product {

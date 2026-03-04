@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { X, Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/components/cart-provider";
+import { useState } from "react";
 
 export function CartSidebar() {
   const {
@@ -15,8 +16,98 @@ export function CartSidebar() {
     totalItems,
     totalPrice,
   } = useCart();
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   console.log("Cart items:", items);
 
+  const colorMapEmoji: Record<string, string> = {
+    // Unicode literals correctos
+    "Negro": "\u26AB",          // ⚫
+    "Rojo": "\uD83D\uDD34",     // 🔴
+    "Azul": "\uD83D\uDD35",     // 🔵
+    "Blanco": "\u26AA",         // ⚪
+    "Verde": "\uD83D\uDFE2",    // 🟢
+    "Amarillo": "\uD83D\uDFE1"  // 🟡
+  };
+  const handleCheckout = async () => {
+    if (isLoading) return;
+    setErrorMessage("");
+    try {
+      setIsLoading(true);
+      const formattedItems = items.map(({ product, quantity, size, color }) => {
+        const variant = product.variants.find(
+          (v) => v.color === color && v.size === size
+        );
+
+        return {
+          variante_id: variant?.id,
+          cantidad: quantity,
+          nombre: product.name,
+          size,
+          color,
+        };
+      });
+
+      const response = await fetch("/api/pedidos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items: formattedItems.map(({ variante_id, cantidad }) => ({
+            variante_id,
+            cantidad,
+          })),
+        }),
+      });
+
+      const data = await response.json();
+      console.log("Pedido response:", data);
+      if (!response.ok) {
+        setErrorMessage(data.error || "Error al crear pedido");
+        return;
+      }
+
+      const orderId = data.orderId;
+
+      // 🧾 Construcción del mensaje detallado
+      const itemsText = formattedItems
+        .map(
+          (item) => 
+            `• *${item.nombre}*\n` + // Negrita en WhatsApp
+            `  Talle: *${item.size}\n*` +
+            `  Color: *${item.color} ${colorMapEmoji[item.color] || ""}\n*` +
+            `  Cantidad: *${item.cantidad}*`
+        )
+        .join("\n\n"); // Doble salto entre productos para mayor claridad
+
+      const message = `¡Hola! Quiero confirmar el pedido *#${orderId}*\n\n` +
+                      `${itemsText}\n\n` +
+                      `*Total: $${totalPrice.toFixed(2)}*`;
+
+      const encodedMessage = encodeURIComponent(message);
+      const phone = "5493834568407";
+
+      //usando api wsp
+      const url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`;
+      window.open(url, '_blank');
+
+      // const url = `https://wa.me/${phone}?text=${encodedMessage}`;
+      // window.open(url, '_blank', 'noreferrer');
+
+    } catch (error) {
+      console.error(error);
+      alert("Error inesperado");
+      setIsLoading(false);
+    } finally {
+    // 🔥 se reactiva después de 10 segundos
+    setTimeout(() => {
+      setIsLoading(false);
+      setErrorMessage("");
+    }, 5000);
+  }
+};
   return (
     <>
       {/* Overlay */}
@@ -61,10 +152,19 @@ export function CartSidebar() {
           ) : (
             <ul className="flex flex-col gap-4">
               {items.map(({ product, quantity, size, color }) => {
+                const variant = product.variants.find(
+                  v => v.color === color && v.size === size
+                );
                 const key = `${product.id}-${size}-${color}`;
-              const posicion = product.variants.findIndex(item => item.color === color);
-              console.log("Posición de la variante en el carrito:", posicion);
-              console.log("Cantidad de stock de este producto:", product.variants[posicion].stock);
+                const variantWithImage =
+                  product.variants.find(
+                    v => v.color === color && v.images && v.images.length > 0
+                  ) ??
+                  product.variants.find(
+                    v => v.images && v.images.length > 0
+                  );
+
+              const imageUrl = variantWithImage?.images?.[0] ?? "/placeholder.png";
                 return (
                 <li
                   key={key}
@@ -72,7 +172,7 @@ export function CartSidebar() {
                 >
                   <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md bg-secondary">
                     <Image
-                      src={product.variants[posicion].images[0]}
+                      src={imageUrl}
                       alt={product.name}
                       fill
                       className="object-cover"
@@ -100,8 +200,19 @@ export function CartSidebar() {
 
                     <p className="text-sm font-semibold text-foreground">
                       {"$"}{(product.price * quantity).toFixed(2)}
+                      
                     </p>
-
+                    {variant && variant.stock > 0 && (
+                      variant.stock === 1 ? (
+                        <p className="text-xs font-semibold text-destructive mt-1">
+                          ÚLTIMA DISPONIBLE
+                        </p>
+                      ) : variant.stock < 5 ? (
+                        <p className="text-xs font-semibold text-destructive mt-1">
+                          ÚLTIMAS {variant.stock} DISPONIBLES
+                        </p>
+                      ) : null // Si tiene 5 o más, no muestra nada
+                    )}
                     <div className="mt-auto flex items-center gap-2">
                       <button
                         onClick={() => decreaseQuantity(key)}
@@ -127,12 +238,18 @@ export function CartSidebar() {
               })}
             </ul>
           )}
+          <p className="text-xl font-semibold text-destructive mt-1">
+            {errorMessage}
+          </p>
         </div>
 
         {/* Footer */}
         {items.length > 0 && (
+          
           <div className="border-t border-border px-6 py-4">
+            
             <div className="flex items-center justify-between pb-4">
+
               <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                 Subtotal
               </span>
@@ -140,8 +257,16 @@ export function CartSidebar() {
                 {"$"}{totalPrice.toFixed(2)}
               </span>
             </div>
-            <button className="w-full rounded-md bg-primary py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90">
-              Finalizar Compra
+            <button 
+              onClick={handleCheckout}
+              disabled={isLoading}
+              className={`w-full rounded-md py-3 text-sm font-medium transition-opacity
+                ${isLoading 
+                  ? "bg-primary/50 cursor-not-allowed text-primary-foreground" 
+                  : "bg-primary hover:opacity-90 text-primary-foreground"
+                }`}
+            >
+              {isLoading ? "Procesando..." : "Finalizar Compra"}
             </button>
           </div>
         )}
@@ -149,3 +274,4 @@ export function CartSidebar() {
     </>
   );
 }
+

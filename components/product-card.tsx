@@ -3,6 +3,13 @@ import Link from "next/link";
 import type { Product } from "@/data/products";
 
 export function ProductCard({ product }: { product: Product }) {
+  const principalColor = product.variants.find(v => v.es_principal)?.color;
+
+  const sortedColors = [...product.colors].sort((a, b) => {
+    if (a.name === principalColor) return -1;
+    if (b.name === principalColor) return 1;
+    return 0;
+  });
   return (
     <Link
       href={`/product/${product.id}`}
@@ -10,7 +17,7 @@ export function ProductCard({ product }: { product: Product }) {
     >
       <div className="relative aspect-square overflow-hidden bg-secondary">
         <Image
-          src={product.variants[0].images[0]}
+          src={product.variants[product.variants.findIndex(v => v.es_principal)].images[0]}
           alt={product.name}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -31,7 +38,9 @@ export function ProductCard({ product }: { product: Product }) {
             {"$"}{product.price.toFixed(2)}
           </span>
           <div className="flex gap-1.5">
-            {product.colors.slice(0, 4).map((color) => (
+            {
+              
+            sortedColors.slice(0, 4).map((color) => (
               <span
                 key={color.name}
                 className="h-4 w-4 rounded-full border border-border"

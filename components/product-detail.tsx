@@ -16,10 +16,9 @@ export function ProductDetail({
   initialColor?: string
 }) {
   const principalVariant =
-    product.variants.find(v => v.es_principal && v.activo) ??
-    product.variants.find(v => v.activo) ??
+    product.variants.find(v => v.es_principal) ??
     product.variants[0];
-  console.log("variante principal ", principalVariant);
+  console.log("variante principal ", product.variants);
 
   const { addToCart, openCart } = useCart();
   const [added, setAdded] = useState(false);
@@ -52,7 +51,6 @@ export function ProductDetail({
   v =>
     v.color === selectedColor &&
     v.size === selectedSize &&
-    v.stock > 0 &&
     v.activo
   );
 
@@ -88,7 +86,17 @@ export function ProductDetail({
     product.variants.find(
       v =>
         v.color === selectedColor &&
+        v.es_principal &&
         v.activo
+    ) ??
+    product.variants.find(
+      v =>
+        v.color === selectedColor &&
+        v.activo
+    ) ??
+    product.variants.find(
+      v =>
+        v.color === selectedColor
     );
 
   const imagesForSelectedColor =
@@ -101,7 +109,13 @@ export function ProductDetail({
 
   const galleryImages =
     imagesForSelectedColor.slice(1);
+  const principalColor = product.variants.find(v => v.es_principal)?.color;
 
+  const sortedColors = [...product.colors].sort((a, b) => {
+    if (a.name === principalColor) return -1;
+    if (b.name === principalColor) return 1;
+    return 0;
+  });
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
       {/* Top section: image + info */}
@@ -149,7 +163,7 @@ export function ProductDetail({
               Color{selectedColor ? `: ${selectedColor}` : ""}
             </h3>
             <div className="flex flex-wrap gap-3" role="radiogroup" aria-label="Seleccionar color">
-            {product.colors.map((color) => {
+            {sortedColors.map((color) => {
               const disabled = !colorDisponible(color.name);
 
               return (
@@ -299,7 +313,7 @@ export function ProductDetail({
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {galleryImages.map((img, index) => (
               <div
-                key={index}
+                key={img}
                 className="overflow-hidden rounded-lg border border-border bg-card"
               >
                 <img
