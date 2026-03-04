@@ -29,9 +29,7 @@ export function ProductDetail({
     ""
   );
 
-  const [selectedSize, setSelectedSize] = useState(
-    principalVariant?.size ?? ""
-  );
+  const [selectedSize, setSelectedSize] = useState("");
   const [showError, setShowError] = useState(false);
 
   const avgRating =

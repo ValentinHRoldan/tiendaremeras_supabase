@@ -15,6 +15,7 @@ export function CartSidebar() {
     totalItems,
     totalPrice,
   } = useCart();
+  console.log("Cart items:", items);
 
   return (
     <>
@@ -39,7 +40,7 @@ export function CartSidebar() {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h2 className="text-lg font-semibold tracking-wide text-foreground uppercase">
-            Cart ({totalItems})
+            Carrito ({totalItems})
           </h2>
           <button
             onClick={closeCart}
@@ -61,6 +62,9 @@ export function CartSidebar() {
             <ul className="flex flex-col gap-4">
               {items.map(({ product, quantity, size, color }) => {
                 const key = `${product.id}-${size}-${color}`;
+              const posicion = product.variants.findIndex(item => item.color === color);
+              console.log("Posición de la variante en el carrito:", posicion);
+              console.log("Cantidad de stock de este producto:", product.variants[posicion].stock);
                 return (
                 <li
                   key={key}
@@ -68,7 +72,7 @@ export function CartSidebar() {
                 >
                   <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md bg-secondary">
                     <Image
-                      src={product.variants[0].images[0]}
+                      src={product.variants[posicion].images[0]}
                       alt={product.name}
                       fill
                       className="object-cover"

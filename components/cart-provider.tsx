@@ -99,15 +99,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const increaseQuantity = useCallback((key: string) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        cartKey(item.product.id, item.size, item.color) === key
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
-    );
-  }, []);
+const increaseQuantity = useCallback((key: string) => {
+  setItems((prev) =>
+    prev.map((item) => {
+      if (cartKey(item.product.id, item.size, item.color) !== key) {
+        return item;
+      }
+
+      const variant = item.product.variants.find(
+        (v) =>
+          v.color === item.color &&
+          v.size === item.size
+      );
+
+      if (!variant) return item;
+
+      if (item.quantity >= variant.stock) {
+        return item; // se valida que no incremente si alcanza el stock
+      }
+
+      return { ...item, quantity: item.quantity + 1 };
+    })
+  );
+}, []);
 
   const decreaseQuantity = useCallback((key: string) => {
     setItems((prev) =>
