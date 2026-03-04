@@ -15,13 +15,22 @@ export function ProductDetail({
   product: Product
   initialColor?: string
 }) {
+  const principalVariant =
+    product.variants.find(v => v.es_principal && v.activo) ??
+    product.variants.find(v => v.activo) ??
+    product.variants[0];
+  console.log("variante principal ", principalVariant);
+
   const { addToCart, openCart } = useCart();
   const [added, setAdded] = useState(false);
-  const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState(
-  product.colors.some(c => c.name === initialColor)
-    ? initialColor!
-    : product.colors[0]?.name ?? ""
+    initialColor ??
+    principalVariant?.color ??
+    ""
+  );
+
+  const [selectedSize, setSelectedSize] = useState(
+    principalVariant?.size ?? ""
   );
   const [showError, setShowError] = useState(false);
 
@@ -49,17 +58,10 @@ export function ProductDetail({
     v.activo
   );
 
-  const selectedColorVariant = product.variants.find(
-  v =>
-    v.color === selectedColor &&
-    v.stock > 0 &&
-    v.activo
-);
 
   console.log(selectedVariant)
 
   function colorDisponible(colorName: string) {
-    // Si no hay talle seleccionado, no bloqueamos nada
     if (!selectedSize) return true;
 
     return product.variants.some(
@@ -84,23 +86,24 @@ export function ProductDetail({
     );
   }
 
-  const imagesForSelectedColor = selectedColor
-  ? product.variants
-      .filter(
-        (v) =>
-          v.color === selectedColor &&
-          v.activo
-      )
-      .find((v) => v.images.length > 0)
-      ?.images ?? []
-  : [];
+  const activeColorVariant =
+    product.variants.find(
+      v =>
+        v.color === selectedColor &&
+        v.activo
+    );
+
+  const imagesForSelectedColor =
+    activeColorVariant?.images ?? [];
 
   const mainImage =
-  imagesForSelectedColor[0] ??
-  product.variants[0]?.images[0] ??
-  null;
-  console.log("Imagen principal " + mainImage)
-  const galleryImages = imagesForSelectedColor.slice(1);
+    imagesForSelectedColor[0] ??
+    principalVariant?.images?.[0] ??
+    null;
+
+  const galleryImages =
+    imagesForSelectedColor.slice(1);
+
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
       {/* Top section: image + info */}
