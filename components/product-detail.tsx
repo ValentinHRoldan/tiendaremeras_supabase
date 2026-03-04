@@ -83,6 +83,24 @@ export function ProductDetail({
         v.activo
     );
   }
+
+  const imagesForSelectedColor = selectedColor
+  ? product.variants
+      .filter(
+        (v) =>
+          v.color === selectedColor &&
+          v.activo
+      )
+      .find((v) => v.images.length > 0)
+      ?.images ?? []
+  : [];
+
+  const mainImage =
+  imagesForSelectedColor[0] ??
+  product.variants[0]?.images[0] ??
+  null;
+  console.log("Imagen principal " + mainImage)
+  const galleryImages = imagesForSelectedColor.slice(1);
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
       {/* Top section: image + info */}
@@ -91,8 +109,7 @@ export function ProductDetail({
         <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-secondary lg:w-1/2">
         <Image
           src={
-            selectedColorVariant?.images[0] ??
-            product.variants[0].images[0]
+            mainImage
           }
           alt={product.name}
           fill
@@ -272,21 +289,21 @@ export function ProductDetail({
         </div>
       </section> */}
       {/* GALERIA DE IMAGENES */}
-      {/* <section className="mt-16">
+      <section className="mt-16">
         <h2 className="mb-6 text-lg font-bold tracking-tight text-foreground">
           Más imágenes
         </h2>
 
-        {product.gallery.length > 0 ? (
+        {galleryImages.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {product.gallery.map((img, i) => (
+            {galleryImages.map((img, index) => (
               <div
-                key={i}
+                key={index}
                 className="overflow-hidden rounded-lg border border-border bg-card"
               >
                 <img
                   src={img}
-                  alt={`Imagen ${i + 1}`}
+                  alt={`${product.name} ${index}`}
                   className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                 />
               </div>
@@ -297,7 +314,7 @@ export function ProductDetail({
             No hay imágenes adicionales.
           </p>
         )}
-      </section> */}
+      </section>
 
       {/* Reviews */}
       {/* <section className="mt-16 pb-10">
