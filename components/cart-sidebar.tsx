@@ -19,7 +19,7 @@ export function CartSidebar() {
   
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  console.log("Cart items:", items);
+
 
   const colorMapEmoji: Record<string, string> = {
     // Unicode literals correctos
@@ -63,14 +63,15 @@ export function CartSidebar() {
       });
 
       const data = await response.json();
-      console.log("Pedido response:", data);
+
       if (!response.ok) {
         setErrorMessage(data.error || "Error al crear pedido");
         return;
       }
 
       const orderId = data.orderId;
-
+      localStorage.removeItem("ecommerce-cart");
+      
       // 🧾 Construcción del mensaje detallado
       const itemsText = formattedItems
         .map(
@@ -95,7 +96,7 @@ export function CartSidebar() {
 
       // const url = `https://wa.me/${phone}?text=${encodedMessage}`;
       // window.open(url, '_blank', 'noreferrer');
-
+      
     } catch (error) {
       console.error(error);
       alert("Error inesperado");
@@ -105,6 +106,7 @@ export function CartSidebar() {
     setTimeout(() => {
       setIsLoading(false);
       setErrorMessage("");
+      window.location.reload();
     }, 5000);
   }
 };
@@ -164,7 +166,7 @@ export function CartSidebar() {
                     v => v.images && v.images.length > 0
                   );
 
-              const imageUrl = variantWithImage?.images?.[0] ?? "/placeholder.png";
+                const imageUrl = variantWithImage?.images?.[0] ?? "/placeholder.png";
                 return (
                 <li
                   key={key}

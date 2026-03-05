@@ -18,7 +18,7 @@ export function ProductDetail({
   const principalVariant =
     product.variants.find(v => v.es_principal) ??
     product.variants[0];
-  console.log("variante principal ", product.variants);
+//   console.log("variante principal ", product.variants);
 
   const { addToCart, openCart } = useCart();
   const [added, setAdded] = useState(false);
@@ -55,7 +55,7 @@ export function ProductDetail({
   );
 
 
-  console.log(selectedVariant)
+//   console.log(selectedVariant)
 
   function colorDisponible(colorName: string) {
     if (!selectedSize) return true;
@@ -260,7 +260,17 @@ export function ProductDetail({
               ))}
             </ul>
           </div>
-
+            {selectedVariant && selectedVariant.stock > 0 && (
+                selectedVariant.stock === 1 ? (
+                <p className="text-xs font-semibold text-destructive mt-1">
+                    ÚLTIMA DISPONIBLE
+                </p>
+                ) : selectedVariant.stock < 5 ? (
+                <p className="text-2xs font-semibold text-destructive mt-1">
+                    ÚLTIMAS {selectedVariant.stock} DISPONIBLES
+                </p>
+                ) : null // Si tiene 5 o más, no muestra nada
+            )}
           {/* Add to cart */}
           <div className="flex items-center gap-3 pt-2">
             <button

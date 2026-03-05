@@ -60,7 +60,7 @@ export default async function ProductPage({
   if (error || !product) {
     notFound()
   }
-  console.log("producto raw ", product);
+
   // return <ProductDetail product={transformProduct(product)} />
   return (
   <ProductDetail
